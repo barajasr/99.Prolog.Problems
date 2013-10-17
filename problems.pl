@@ -108,7 +108,7 @@ transfer(X, [X|Xs], Ys, [X|Zs]):-
 %   ?- encode([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
 %   X = [[4,a],[1,b],[2,c],[2,a],[1,d][4,e]]
 encode([], []).
-encode([[Y|Ys]|Xs], Encoded):-                  % Assuming X is packed sublist
+encode([[Y|Ys]|Xs], Encoded):-                  % Assuming head ([Y|Ys]) packed
     !, count([Y|Ys], N),
     append([[N,Y]], RestEncoded, Encoded),
     encode(Xs, RestEncoded).
@@ -117,7 +117,7 @@ encode([X|Xs], Encoded):-                       % If list not packed
     encode(Packed, Encoded).
 
 encode_tail([], []).
-encode_tail([[Y|Ys]|Xs], [[N, Y]|Encoded]):-    % Assuming head is not packed
+encode_tail([[Y|Ys]|Xs], [[N, Y]|Encoded]):-    % Assuming head ([Y|Ys]) packed
     !, count([Y|Ys], N),
     encode_tail(Xs, Encoded).
 encode_tail([X|Xs], Encoded):-                  % If list not packed
