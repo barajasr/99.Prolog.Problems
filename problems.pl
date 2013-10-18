@@ -187,3 +187,60 @@ count_duplicates(X, [X|Ys], N, Rest):-
     N is NewN + 1.
 count_duplicates(X, [Y|Ys], 0, [Y|Ys]):-
     X \= Y.
+
+%=========================================================================
+% P14 (*) Duplicate the elements of a list.
+%   ?-dupli([a,b,c,d],X).
+%   X = [a,a,b,b,c,c,d,d]
+dupli([],[]).
+dupli([X|Xs], [X,X|Ys]):-
+    dupli(Xs, Ys).
+
+%=========================================================================
+% P15 (**) Duplicate the elements of a list a given number of times.
+%   ?-dupli([a,b,c],3,X).
+%   X = [a,a,a,b,b,b,c,c,c]
+%
+% What are the results of the goal:
+%   ?-dupli(X,3,Y).
+%   X = Y, Y = [] ;
+%   X = [_G334],
+%   Y = [_G334, _G334, _G334].
+dupli([], _, []).
+dupli(List, 1, List):- !.
+dupli([X|Xs], N, Duplicates):-
+    expand(N, X, Expanded),
+    append(Expanded, Rest, Duplicates),
+    dupli(Xs, N, Rest), !.
+
+%=========================================================================
+% P16 (**) Drop every N'th element from a list.
+%   ?-drop([a,b,c,d,e,f,g,h,i,k],3,X).
+%   X = [a,b,d,e,g,h,k]
+drop(List, Kth, Dropped):-
+    drop(List, Kth, 1, Dropped).
+
+drop([], _, _, []).
+drop([_|Xs], Kth, Kth, Acc):-
+    !, drop(Xs, Kth, 1, Acc).
+drop([X|Xs], Kth, Cnt, [X|Acc]):-
+    Kth > Cnt,
+    NewCnt is Cnt + 1,
+    drop(Xs, Kth, NewCnt, Acc).
+
+%=========================================================================
+% P17 (*) Split a list into two parts; the length of the first part is given.
+% Do not use any predefined predicates.
+%   ?-split([a,b,c,d,e,f,g,h,i,k],3,L1,L2).
+%   L1 = [a,b,c]
+%   L2 = [d,e,f,g,h,i,k]
+split(List, Length, List1, List2):-
+    split(List, Length, 1, List1, List2).
+
+split(List, 0, _, [], List).                    % L1 size of 0
+split([], _, _, [], []).                        % L1 = List, L2 = []
+split([X|Xs], Length, Length, [X], Xs).         % Split list here
+split([X|Xs], Length, Cnt, [X|List1], List2):-
+    Length > Cnt,
+    NewCnt is Cnt + 1,
+    split(Xs, Length, NewCnt, List1, List2).
