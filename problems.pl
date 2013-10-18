@@ -145,3 +145,45 @@ modify([[1, Y]|Xs], [Y|Encoded]):-
     modify(Xs, Encoded).
 modify([[N, Y]|Xs], [[N, Y]|Encoded]):-
     modify(Xs, Encoded).
+
+%=========================================================================
+% P12 (**) Decode a run-length encoded list.
+% Given a run-length code list generated as specified in problem P11. Construct
+% its uncompressed version.
+decode([], []).
+decode([[N, Y]|Xs], Uncompressed):-
+    expand(N, Y, List), !,
+    append(List, Rest, Uncompressed),
+    decode(Xs, Rest).
+decode([X|Xs], [X|Uncompressed]):-
+    \+ is_list(X), !, 
+    decode(Xs, Uncompressed).
+
+expand(0, _, []).
+expand(N, Y, [Y|List]):-
+    N > 0,
+    NewN is N - 1,
+    expand(NewN, Y, List).
+
+%=========================================================================
+% P13 (**) Run-length encoding of a list (direct solution).
+% Implement the so-called run-length encoding data compression method directly.
+% I.e.don't explicitly create the sublists containing the duplicates, as in
+% P09, but only count them. As in P11, simplify the result list by replacing
+% the singleton terms [1,X] by X.
+%   ?- encode_direct([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
+%   X = [[4,a],b,[2,c],[2,a],d,[4,e]]
+encode_direct([], []).
+encode_direct([X|Xs], [[N,X]|Encoded]):-    % X more than 1
+    count_duplicates(X, [X|Xs], N, Rest),
+    N > 1,
+    encode_direct(Rest, Encoded).
+encode_direct([X|Xs], [X|Encoded]):-        % X has no duplicates
+    encode_direct(Xs, Encoded).
+
+count_duplicates(_, [], 0, []).
+count_duplicates(X, [X|Ys], N, Rest):-
+    count_duplicates(X, Ys, NewN, Rest),
+    N is NewN + 1.
+count_duplicates(X, [Y|Ys], 0, [Y|Ys]):-
+    X \= Y.
