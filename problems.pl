@@ -244,3 +244,60 @@ split([X|Xs], Length, Cnt, [X|List1], List2):-
     Length > Cnt,
     NewCnt is Cnt + 1,
     split(Xs, Length, NewCnt, List1, List2).
+
+%=========================================================================
+% P18 (**) Extract a slice from a list.
+% Given two indices, I and K, the slice is the list containing the elements
+% between the I'th and K'th element of the original list (both limits included).
+% Start counting the elements with 1.
+%   ?-slice([a,b,c,d,e,f,g,h,i,k],3,7,L).
+%   X = [c,d,e,f,g]
+slice(List, Start, End, Slice):-
+    Start > 0,
+    Start =< End,
+    slice(List, Start, End, 1, Slice).
+
+slice([X|_], _, End, End, [X]).
+slice([_|Xs], Start, End, Cnt, Slice):-         % Not at beginning of splice
+    Cnt < Start,
+    NewCnt is Cnt + 1,
+    slice(Xs, Start, End, NewCnt, Slice).
+slice([X|Xs], Start, End, Cnt, [X|Slice]):-     % Build Splice
+    Cnt >= Start,
+    Cnt < End,
+    NewCnt is Cnt + 1,
+    slice(Xs, Start, End, NewCnt, Slice).
+slice([], Start, End, Cnt, []):-                % End < Cnt, end splice here
+    Start < Cnt,
+    Cnt < End.
+
+%=========================================================================
+% P19 (**) Rotate a list N places to the left.
+%   ?- rotate([a,b,c,d,e,f,g,h],3,X).
+%   X = [d,e,f,g,h,a,b,c]
+%   ?- rotate([a,b,c,d,e,f,g,h],-2,X).
+%   X = [g,h,a,b,c,d,e,f]
+%
+% Hint: Use the predefined predicates length/2 and append/3, as well as
+% the result of problem P17.
+rotate([], _, []).
+rotate(List, N, Rotated):-
+    length(List, Length),
+    N1 is N mod Length,
+    split(List, N1, List1, List2),
+    append(List2, List1, Rotated).
+
+%=========================================================================
+% P20 (**) Remove the Kth element from a list.
+%   ?- remove_at(X,[a,b,c,d],2,R).
+%   X = b
+%   R = [a,c,d]
+remove_at(Removed, List, Kth, Remaining):-
+    Kth > 0,
+    remove_at(List, Kth, 1, Removed, Remaining).
+
+remove_at([X|Xs], Kth, Kth, X, Xs):- !.
+remove_at([X|Xs], Kth, Cnt, Removed, [X|Rest]):-
+    NewCnt is Cnt + 1,
+    remove_at(Xs, Kth, NewCnt, Removed, Rest), !.
+
