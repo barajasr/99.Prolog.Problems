@@ -288,16 +288,139 @@ rotate(List, N, Rotated):-
     append(List2, List1, Rotated).
 
 %=========================================================================
-% P20 (**) Remove the Kth element from a list.
+% P20 (*) Remove the Kth element from a list.
 %   ?- remove_at(X,[a,b,c,d],2,R).
 %   X = b
 %   R = [a,c,d]
 remove_at(Removed, List, Kth, Remaining):-
     Kth > 0,
-    remove_at(List, Kth, 1, Removed, Remaining).
+    remove_at(List, Kth, 1, Removed, Remaining), !.
 
-remove_at([X|Xs], Kth, Kth, X, Xs):- !.
+remove_at([X|Xs], Kth, Kth, X, Xs).
 remove_at([X|Xs], Kth, Cnt, Removed, [X|Rest]):-
     NewCnt is Cnt + 1,
-    remove_at(Xs, Kth, NewCnt, Removed, Rest), !.
+    remove_at(Xs, Kth, NewCnt, Removed, Rest).
+
+%========================================================================
+% P21 (*) Insert an element at a given position into a list.
+%   ?- insert_at(alfa,[a,b,c,d],2,R).
+%   L = [a,alfa,b,c,d]
+insert_at(Inserting, List, Kth, Inserted):-
+    Kth > 0,
+    insert_at(Inserting, List, Kth, 1, Inserted), !.
+
+insert_at(Y, [], _, _, [Y]).
+insert_at(Y, [X|Xs], Kth, Kth, [Y,X|Xs]).
+insert_at(Y, [X|Xs], Kth, Cnt, [X|Rest]):-
+    NewCnt is Cnt + 1,
+    insert_at(Y, Xs, Kth, NewCnt, Rest).
+
+%========================================================================
+% P22 (*) Create a list containing all integers within a given range.
+%   ?- range(4,9,L).
+%   L = [4,5,6,7,8,9]
+range(Start, End, List):-
+    Start =< End,
+    build_range(Start, End, 1, List), !.
+
+build_range(End, End, _, [End]).
+build_range(Start, End, Step, [Start|Rest]):-
+    Start < End,
+    NewStart is Start + Step,
+    build_range(NewStart, End, Step, Rest).
+build_range(Start, End, _, []):-
+    Start > End.
+
+%========================================================================
+% P23 (**) Extract a given number of randomly selected elements from a list.
+% The selected items shall be put into a result list.
+%   ?- rnd_select([a,b,c,d,e,f,g,h],3,L).
+%   L = [e,d,a]
+%
+% Hint: Use the built-in random number generator random/2 and the result of
+% problem P20.
+rnd_select(List, N, Selected):-
+    N > 0,
+    length(List, Length),
+    rnd_select(List, N, Length, Selected), !.
+
+rnd_select([], _, _, []).
+rnd_select(_, 0, _, []).
+rnd_select(List, N, Size, [X|Rest]):-
+    Pos is random(Size) + 1,
+    remove_at(X, List, Pos, _),
+    NewN is N - 1,
+    rnd_select(List, NewN, Size, Rest).
+
+%========================================================================
+% P24 (*) Lotto: Draw N different random numbers from the set 1..M.
+% The selected numbers shall be put into a result list.
+%   ?- rnd_select(6,49,L).
+%   L = [23,1,17,33,21,37]
+%
+% Hint: Combine the solutions of problems P22 and P23.
+lotto(1, End, [X]):-
+    X is random(End) + 1, !.
+lotto(N, End, [X|Rest]):-
+    X is random(End) + 1,
+    NewN is N - 1,
+    lotto(NewN, End, Rest).
+
+%========================================================================
+% P25 (*) Generate a random permutation of the elements of a list.
+%   ?- md_select([a,b,c,d,e,f],L).
+%   L = [b,a,d,c,e,f]
+%
+%   Hint: Use the solution of problem P23.
+rnd_permu([], []).
+rnd_permu([X|Xs], [Y|Rest]):-
+    rnd_select([X|Xs], 1, [Y|_]),
+    rnd_permu(Xs, Rest).
+
+%========================================================================
+% P26 (**) Generate the combinations of K distinct objects chosen from the
+% N elements of a list.
+% In how many ways can acommitte of 3 be chosen from a group of 12 people?
+% We all know that there are C(12,3) = 220 possibilities (C(N,K) denotes
+% the well-known binomial coefficients). For pure mathematicians, this
+% result may be great. But we want to really generate all the possibilities
+% (via backtracing).
+%   ?- combination(3,[a,b,c,d,e,f],L).
+%   L = [a,b,c] ;
+%   L = [a,b,d] ;
+%   L = [a,b,e] ;
+%   ... 
+combination(0, _, []).
+combination(N, List, [X|Rest]) :-
+    N > 0,
+    creep_list(X, List, Xs),
+    NewN is N-1,
+    combination(NewN, Xs, Rest).
+    
+creep_list(X, [X|Xs], Xs).
+creep_list(X, [_|Ys], Rest):-
+    creep_list(X, Ys, Rest).
+
+%========================================================================
+% P27 (**) Group the elements of a set into disjoint subsets.
+% a) In how many ways can a group of 9 people work in 3 disjoint subgroups of
+%    2, 3 and 4 persons? Write a predicate that generates all the possibilities
+%    via backtracking.
+%   ?- group3([aldo,beat,carla,david,evi,flip,gary,hugo,ida],G1,G2,G3).
+%   G1 = [aldo,beat], G2 = [carla,david,evi], G3 = [flip,gary,hugo,ida]
+%   ...
+%
+% b) Generalize the above predicate in a way that we can specify a list of
+% group sizes and the predicate will return a list of groups.
+%   ?- group([aldo,beat,carla,david,evi,flip,gary,hugo,ida],[2,2,5],Gs).
+%   Gs = [[aldo,beat],[carla,david],[evi,flip,gary,hugo,ida]]
+%   ...
+%
+% Note that we do not want permutations of the group members; i.e.
+% [[aldo,beat],...] is the same solution as [[beat,aldo],...]. However, we
+% make a difference between [[aldo,beat],[carla,david],...] and
+% [[carla,david],[aldo,beat],...].
+%
+% You may find more about this combinatorial problem in a good book on
+% discrete mathematics under the term "multinomial coefficients".
 
