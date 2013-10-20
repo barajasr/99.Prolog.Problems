@@ -424,3 +424,25 @@ creep_list(X, [_|Ys], Rest):-
 % You may find more about this combinatorial problem in a good book on
 % discrete mathematics under the term "multinomial coefficients".
 
+% P27.a Form one group, remove from set, select new group...
+group3(List, Group1, Group2, Group3):-
+    selectN(2, List, Group1),
+    subtract(List, Group1, Remaining),
+    selectN(3, Remaining, Group2),
+    subtract(Remaining, Group2, Remaining1),
+    selectN(4, Remaining1, Group3),
+    subtract(Remaining1, Group3, []).
+
+selectN(0, _, []).
+selectN(N, List, [X|Xs]):-
+    creep_list(X, List, Rest),
+    NewN is N - 1,
+    selectN(NewN, Rest, Xs).
+
+% P27.b
+group([],[],[]).
+group(List,[N|Ns],[Group|Groups]) :- 
+    selectN(N, List, Group),
+    subtract(List, Group, Rest),
+    group(Rest, Ns, Groups).
+
