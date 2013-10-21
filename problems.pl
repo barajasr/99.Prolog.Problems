@@ -904,7 +904,7 @@ gray_code(N, Code):-
     reverse(SubCode, ReversedSubCode),
     prepend('0', SubCode, FirstHalf),
     prepend('1', ReversedSubCode, SecondHalf),
-    append(FirstHalf, SecondHalf, Code).
+    !, append(FirstHalf, SecondHalf, Code).
 %    asserta((gray_code(N, Code):- !)).
 
 prepend(_, [], []).
