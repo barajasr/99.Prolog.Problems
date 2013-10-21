@@ -605,3 +605,51 @@ prime_factors_mult(N, OutList):-
 flip_primes_multiples([],[]).
 flip_primes_multiples([[N, Prime]|Xs], [[Prime, N]|Rest]):-
     flip_primes_multiples(Xs, Rest).
+
+%========================================================================
+% P2.07 (**) Calculate Euler's totient function phi(m) (improved).
+% See problem P2.04 for the definition of Euler's totient function. If the list
+% of prime factors of a number m is known in the form of problem P2.06 then 
+% the function φ(m) can be efficiently calculated as follows:
+% Let [[p1,m1],[p2,m2],[p3,m3],...] be the list of prime factors (and their
+% multiplicities) of a given numberm. Then φ(m) can be calculated with the
+% following formula:
+%
+% φ(m) = (p1 - 1) * p1 ** (m1 - 1) + (p2 - 1) * p2 ** (m2 - 1) + (p3 - 1) * p3 ** (m3 - 1) + ...
+%
+% Note that a ** b stands for the b'th power of a.
+totient_phi2(N, Phi):-
+    prime_factors_mult(N, List),
+    sum_phi(List, Phi).
+
+sum_phi([], 1).
+sum_phi([[Factor, 1]|Xs], Phi):-
+    !, sum_phi(Xs, NewPhi),
+    Phi is NewPhi * (Factor -1).
+sum_phi([[Factor, Multple]|Xs], Phi):-
+    Multple > 1,
+    NewMultple is Multple -1,
+    sum_phi([[Factor, NewMultple]|Xs], NewPhi),
+    Phi is NewPhi * Factor.
+
+%========================================================================
+% P2.08 (*) Compare the two methods of calculating Euler's totient function.
+% Use the solutions of problems P2.04 and P2.07 to compare the algorithms.
+% Take the number of logical inferences as a measure for efficiency.
+% Try to calculate φ(10090) as an example.
+
+% totient_phi: 
+% % 742,165 inferences, 0.132 CPU in 0.132 seconds (100% CPU, 5623548 Lips)
+% 4032
+% totient_phi2: 
+% % 154 inferences, 0.000 CPU in 0.000 seconds (99% CPU, 3029588 Lips)
+% 4032
+% true.
+totient_tests(N):-
+    write('totient_phi: '),
+    time(totient_phi(N, Phi1)),
+    write(Phi1), nl,
+    write('totient_phi2: '),
+    time(totient_phi2(N, Phi2)),
+    write(Phi2), nl.
+
