@@ -1,16 +1,18 @@
+%% Working with Prolog lists
+
 %=========================================================================
-% P01 (*) Find the last element of a list.
+% P1.01 (*) Find the last element of a list.
 %   ?- my_last(X, [a,b,c,d]).
 %   X = d
 my_last(X, List):-
     last(List, X).
 
 %=========================================================================
-% P02 (*) Find the last but one element of a list.
+% P1.02 (*) Find the last but one element of a list.
 % ???
 
 %=========================================================================
-% P03 (*) Find the k'th element of a list.
+% P1.03 (*) Find the k'th element of a list.
 % The first element in the list is num 1.
 %   ?- element_at(X, [a,b,c,d,e], 3).
 %   X = c
@@ -21,14 +23,14 @@ element_at(Var, [_|Xs], Kth):-
     element_at(Var, Xs, NewKth).
 
 %=========================================================================
-% P04 (*) Find the number of elements of a list.
+% P1.04 (*) Find the number of elements of a list.
 number_of_elements([], 0).
 number_of_elements([_|Xs], N):-
     number_of_elements(Xs, NewN),
     N is NewN + 1.
 
 %=========================================================================
-% P05 (*) Reverse a list.
+% P1.05 (*) Reverse a list.
 reverse_list(List, Reverse):-
     reverse_list(List, [], Reverse).
 
@@ -37,7 +39,7 @@ reverse_list([X|Xs], Acc, Reverse):-
     reverse_list(Xs, [X|Acc], Reverse).
 
 %=========================================================================
-% P06 (*) Find out whether a list is a palindrome.
+% P1.06 (*) Find out whether a list is a palindrome.
 % A palindrome can be read forward or backwards; e.g. [x,a,m,a,x].
 is_palidrome(List):-
     is_palidrome(List, []).
@@ -48,7 +50,7 @@ is_palidrome([X|Xs], Ys):-
     is_palidrome(Xs, [X|Ys]).
 
 %=========================================================================
-% P07 (**) Flatten a nested list structure.
+% P1.07 (**) Flatten a nested list structure.
 % Transform a list, possibly holding lists as elements into a "flat" list by
 % replacing each list with its elements (recursively).
 %   ?- my_flatten([a,[b,[c,d],e]],X).
@@ -63,7 +65,7 @@ my_flatten(Item, Flattened, [Item|Flattened]):-
     \+ is_list(Item).
 
 %=========================================================================
-% P08 (**) Eliminate consecutive duplicates of list elements.
+% P1.08 (**) Eliminate consecutive duplicates of list elements.
 % If a list contains repeated elements they should be replaced with a single
 % copy of the element. The order of the elements should not be changed.
 %   ?- compress([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
@@ -82,7 +84,7 @@ compress([X|Xs], _, Acc, Compressed):-
     compress(Xs, X, NewAcc, Compressed).
 
 %=========================================================================
-% P09 (**) Pack consecutive duplicates of list elements into sublists.
+% P1.09 (**) Pack consecutive duplicates of list elements into sublists.
 % If a list contains repeated elements they should be placed in seperate
 % sublists.
 %   ?- pack([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
@@ -101,7 +103,7 @@ transfer(X, [X|Xs], Ys, [X|Zs]):-
     transfer(X, Xs, Ys, Zs).
 
 %=========================================================================
-% P10 (**) Run-length encoding of a list.
+% P1.10 (**) Run-length encoding of a list.
 % Use the result of problem P09 to implement the so-called run-length encoding
 % data compression method. Consecutive duplicates of elements are encoded as
 % terms [N, E] where N is the number of duplicates of the element E.
@@ -130,7 +132,7 @@ count([_|Xs], N):-
     N is NewN + 1.
 
 %=========================================================================
-% P11 (*) Modified run-length encoding.
+% P1.11 (*) Modified run-length encoding.
 % Modify the result of problem P10 in such a way that if an element has no
 % duplicates it is simply copied into the result list. Only elements with
 % duplicates are transferred as [N,E] terms.
@@ -147,7 +149,7 @@ modify([[N, Y]|Xs], [[N, Y]|Encoded]):-
     modify(Xs, Encoded).
 
 %=========================================================================
-% P12 (**) Decode a run-length encoded list.
+% P1.12 (**) Decode a run-length encoded list.
 % Given a run-length code list generated as specified in problem P11. Construct
 % its uncompressed version.
 decode([], []).
@@ -166,7 +168,7 @@ expand(N, Y, [Y|List]):-
     expand(NewN, Y, List).
 
 %=========================================================================
-% P13 (**) Run-length encoding of a list (direct solution).
+% P1.13 (**) Run-length encoding of a list (direct solution).
 % Implement the so-called run-length encoding data compression method directly.
 % I.e.don't explicitly create the sublists containing the duplicates, as in
 % P09, but only count them. As in P11, simplify the result list by replacing
@@ -189,7 +191,7 @@ count_duplicates(X, [Y|Ys], 0, [Y|Ys]):-
     X \= Y.
 
 %=========================================================================
-% P14 (*) Duplicate the elements of a list.
+% P1.14 (*) Duplicate the elements of a list.
 %   ?-dupli([a,b,c,d],X).
 %   X = [a,a,b,b,c,c,d,d]
 dupli([],[]).
@@ -197,7 +199,7 @@ dupli([X|Xs], [X,X|Ys]):-
     dupli(Xs, Ys).
 
 %=========================================================================
-% P15 (**) Duplicate the elements of a list a given number of times.
+% P1.15 (**) Duplicate the elements of a list a given number of times.
 %   ?-dupli([a,b,c],3,X).
 %   X = [a,a,a,b,b,b,c,c,c]
 %
@@ -214,7 +216,7 @@ dupli([X|Xs], N, Duplicates):-
     dupli(Xs, N, Rest), !.
 
 %=========================================================================
-% P16 (**) Drop every N'th element from a list.
+% P1.16 (**) Drop every N'th element from a list.
 %   ?-drop([a,b,c,d,e,f,g,h,i,k],3,X).
 %   X = [a,b,d,e,g,h,k]
 drop(List, Kth, Dropped):-
@@ -229,7 +231,7 @@ drop([X|Xs], Kth, Cnt, [X|Acc]):-
     drop(Xs, Kth, NewCnt, Acc).
 
 %=========================================================================
-% P17 (*) Split a list into two parts; the length of the first part is given.
+% P1.17 (*) Split a list into two parts; the length of the first part is given.
 % Do not use any predefined predicates.
 %   ?-split([a,b,c,d,e,f,g,h,i,k],3,L1,L2).
 %   L1 = [a,b,c]
@@ -246,7 +248,7 @@ split([X|Xs], Length, Cnt, [X|List1], List2):-
     split(Xs, Length, NewCnt, List1, List2).
 
 %=========================================================================
-% P18 (**) Extract a slice from a list.
+% P1.18 (**) Extract a slice from a list.
 % Given two indices, I and K, the slice is the list containing the elements
 % between the I'th and K'th element of the original list (both limits included).
 % Start counting the elements with 1.
@@ -272,7 +274,7 @@ slice([], Start, End, Cnt, []):-                % End < Cnt, end splice here
     Cnt < End.
 
 %=========================================================================
-% P19 (**) Rotate a list N places to the left.
+% P1.19 (**) Rotate a list N places to the left.
 %   ?- rotate([a,b,c,d,e,f,g,h],3,X).
 %   X = [d,e,f,g,h,a,b,c]
 %   ?- rotate([a,b,c,d,e,f,g,h],-2,X).
@@ -288,7 +290,7 @@ rotate(List, N, Rotated):-
     append(List2, List1, Rotated).
 
 %=========================================================================
-% P20 (*) Remove the Kth element from a list.
+% P1.20 (*) Remove the Kth element from a list.
 %   ?- remove_at(X,[a,b,c,d],2,R).
 %   X = b
 %   R = [a,c,d]
@@ -302,7 +304,7 @@ remove_at([X|Xs], Kth, Cnt, Removed, [X|Rest]):-
     remove_at(Xs, Kth, NewCnt, Removed, Rest).
 
 %========================================================================
-% P21 (*) Insert an element at a given position into a list.
+% P1.21 (*) Insert an element at a given position into a list.
 %   ?- insert_at(alfa,[a,b,c,d],2,R).
 %   L = [a,alfa,b,c,d]
 insert_at(Inserting, List, Kth, Inserted):-
@@ -316,7 +318,7 @@ insert_at(Y, [X|Xs], Kth, Cnt, [X|Rest]):-
     insert_at(Y, Xs, Kth, NewCnt, Rest).
 
 %========================================================================
-% P22 (*) Create a list containing all integers within a given range.
+% P1.22 (*) Create a list containing all integers within a given range.
 %   ?- range(4,9,L).
 %   L = [4,5,6,7,8,9]
 range(Start, End, List):-
@@ -332,7 +334,7 @@ build_range(Start, End, _, []):-
     Start > End.
 
 %========================================================================
-% P23 (**) Extract a given number of randomly selected elements from a list.
+% P1.23 (**) Extract a given number of randomly selected elements from a list.
 % The selected items shall be put into a result list.
 %   ?- rnd_select([a,b,c,d,e,f,g,h],3,L).
 %   L = [e,d,a]
@@ -353,7 +355,7 @@ rnd_select(List, N, Size, [X|Rest]):-
     rnd_select(List, NewN, Size, Rest).
 
 %========================================================================
-% P24 (*) Lotto: Draw N different random numbers from the set 1..M.
+% P1.24 (*) Lotto: Draw N different random numbers from the set 1..M.
 % The selected numbers shall be put into a result list.
 %   ?- rnd_select(6,49,L).
 %   L = [23,1,17,33,21,37]
@@ -367,7 +369,7 @@ lotto(N, End, [X|Rest]):-
     lotto(NewN, End, Rest).
 
 %========================================================================
-% P25 (*) Generate a random permutation of the elements of a list.
+% P1.25 (*) Generate a random permutation of the elements of a list.
 %   ?- md_select([a,b,c,d,e,f],L).
 %   L = [b,a,d,c,e,f]
 %
@@ -378,7 +380,7 @@ rnd_permu([X|Xs], [Y|Rest]):-
     rnd_permu(Xs, Rest).
 
 %========================================================================
-% P26 (**) Generate the combinations of K distinct objects chosen from the
+% P1.26 (**) Generate the combinations of K distinct objects chosen from the
 % N elements of a list.
 % In how many ways can acommitte of 3 be chosen from a group of 12 people?
 % We all know that there are C(12,3) = 220 possibilities (C(N,K) denotes
@@ -402,7 +404,7 @@ creap_list(X, [_|Ys], Rest):-
     creap_list(X, Ys, Rest).
 
 %========================================================================
-% P27 (**) Group the elements of a set into disjoint subsets.
+% P1.27 (**) Group the elements of a set into disjoint subsets.
 % a) In how many ways can a group of 9 people work in 3 disjoint subgroups of
 %    2, 3 and 4 persons? Write a predicate that generates all the possibilities
 %    via backtracking.
@@ -424,7 +426,7 @@ creap_list(X, [_|Ys], Rest):-
 % You may find more about this combinatorial problem in a good book on
 % discrete mathematics under the term "multinomial coefficients".
 
-% P27.a Form one group, remove from set, select new group...
+% P1.27.a Form one group, remove from set, select new group...
 group3(List, Group1, Group2, Group3):-
     selectN(2, List, Group1),
     subtract(List, Group1, Remaining),
@@ -439,14 +441,15 @@ selectN(N, List, [X|Xs]):-
     NewN is N - 1,
     selectN(NewN, Rest, Xs).
 
-% P27.b
+% P1.27.b
 group([],[],[]).
 group(List,[N|Ns],[Group|Groups]) :- 
     selectN(N, List, Group),
     subtract(List, Group, Rest),
     group(Rest, Ns, Groups).
 
-% P28 (**) Sorting a list of lists according to length of sublists
+%========================================================================
+% P1.28 (**) Sorting a list of lists according to length of sublists
 % a) We suppose that a list (InList) contains elements that are lists
 %    themselves. The objective is to sort the elements of InList according
 %    to their length. E.g. short lists first, longer lists later, or vice
@@ -468,3 +471,11 @@ group(List,[N|Ns],[Group|Groups]) :-
 % length 4 and 1, both lengths appear just once. The third and forth list
 % have length 3; there are two list of this length. And finally, the last
 % three lists have length 2. This is the most frequent length.
+
+
+%========================================================================
+%========================================================================
+%% Arithmetic
+
+%========================================================================
+% P2.01
