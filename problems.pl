@@ -1,4 +1,4 @@
-%% Working with Prolog lists
+% Working with Prolog lists
 
 %=========================================================================
 % P1.01 (*) Find the last element of a list.
@@ -638,6 +638,7 @@ sum_phi([[Factor, Multple]|Xs], Phi):-
 % Take the number of logical inferences as a measure for efficiency.
 % Try to calculate φ(10090) as an example.
 
+% ?- totient_tests(10090).
 % totient_phi: 
 % % 742,165 inferences, 0.132 CPU in 0.132 seconds (100% CPU, 5623548 Lips)
 % 4032
@@ -653,3 +654,105 @@ totient_tests(N):-
     time(totient_phi2(N, Phi2)),
     write(Phi2), nl.
 
+%========================================================================
+% P2.09 (*) A list of prime numbers.
+% Given a range of integers by its lower and upper limit, construct a list
+% of all prime numbers in that range.
+list_of_primes(Lower, Upper, List):-
+    Lower =< 2,
+    acc_primes(2, Upper, List), !.
+list_of_primes(Lower, Upper, List):-
+    NewLower is (Lower // 2) * 2 + 1,       % make odd if not already
+    acc_primes(NewLower, Upper, List).
+
+acc_primes(N, Upper, []):-
+    N > Upper, !.
+acc_primes(N, Upper, [N|List]):-
+    is_prime(N),
+    !, next_number(N, NewN),
+    acc_primes(NewN, Upper, List).
+acc_primes(N, Upper, List):-
+    next_number(N, NewN),
+    acc_primes(NewN, Upper, List).
+
+next_number(2, 3).
+next_number(N, NewN):-
+    NewN is N + 2.
+
+%========================================================================
+% P2.10 (**) Goldbach's conjecture.
+% Goldbach's conjecture says that every positive even number greater than
+% 2 is the sum of two prime numbers. Example: 28 = 5 + 23. It is one of the
+% most famous facts in number theory that has not been  proved to be correct
+% in the general case. It has been numerically confirmed up to very large
+% numbers (much larger than we can go with our Prolog system). Write a 
+% predicate to find two prime numbers that sum up to a given integer.
+%
+%   ?- goldback(28,L).
+%   L = [5,23]
+
+% Leverage backtracking to test set of primes
+goldbach(N, Pair):-
+    list_of_primes(2, N, Primes),
+    !, goldbach(N, Primes, Pair).
+
+goldbach(N, Primes, [X,Y]):-
+    creap_list(X, Primes, _),
+    creap_list(Y, Primes, _),
+    X < N // 2 + 1,                 % Cut duplicate solutions
+    N =:= X + Y.                % Considered cut but likely various solutions
+
+%========================================================================
+% P2.11 (**) A list of Goldbach compositions.
+% Given a range of integers by its lower and upper limit, print a list of all
+% even numbers and their Goldbach composition.
+%   ?- goldbach_list(9,20).
+%   10 = 3 + 7
+%   12 = 5 + 7
+%   14 = 3 + 11
+%   16 = 3 + 13
+%   18 = 5 + 13
+%   20 = 3 + 17
+%
+% In most cases, if an even number is written as the sum of two prime numbers,
+% one of them is very small.Very rarely, the primes are both bigger than say 
+% 50. Try to find out how many such cases there are in therange 2..3000.
+%
+% Example (for a print limit of 50):
+%   ?- goldbach_list(1,2000,50).
+%   992 = 73 + 919
+%   1382 = 61 + 1321
+%   1856 = 67 + 1789
+%   1928 = 61 + 1867
+goldbach_list(Lower, Upper):-
+    goldbach_list(Lower, Upper, 2).
+
+goldbach_list(Lower, Upper, Limit):-
+    Lower =< 4,
+    !, list_of_primes(2, Upper, Primes),
+    build_range(4, Upper, 2, Range),
+    goldbach_range(Range, Primes, Limit), !.
+goldbach_list(Lower, Upper, Limit):-
+    NewLower is ((Lower + 1) //2) * 2,      % Adjust lower bound
+    list_of_primes(2, Upper, Primes),
+    build_range(NewLower, Upper, 2, Range),
+    goldbach_range(Range, Primes, Limit), !.
+
+
+% For given even range, find Goldbach compositions
+% List of Primes supplied to avoid prime lookups
+goldbach_range([], _, _).
+goldbach_range([N|Ns], Primes, Limit):-
+    creap_list(X, Primes, _),
+    creap_list(Y, Primes, _),
+    N =:= X + Y,
+    print(N, X, Y, Limit),
+    goldbach_range(Ns, Primes, Limit).
+    
+print(N, X, Y, Limit):-
+    X >= Limit,
+    write(N), write(' = '),
+    write(X), write(' + '),
+    write(Y), nl.
+print(_, _, _, _).              % Suppress output when below Limit
+    
