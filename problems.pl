@@ -478,4 +478,130 @@ group(List,[N|Ns],[Group|Groups]) :-
 %% Arithmetic
 
 %========================================================================
-% P2.01
+% P2.01 (**) Determine whether a given integer number is prime.
+%   ?- is_prime(7).
+%   Yes
+is_prime(N):-
+    prime(N), !.
+
+prime(2).
+prime(3).
+prime(N):-
+    N > 3,
+    N mod 2 =\= 0,
+    \+ divisible(N, 3).
+
+divisible(N, I):-
+    N mod I =:= 0.
+divisible(N, I):-
+    I*I < N,
+    NewI is I + 2,
+    divisible(N, NewI).
+
+%========================================================================
+% P2.02 (**) Determine the greatest common divisor of two positive integer
+% numbers.
+% Use Euclid's algorithm.
+%   ?- gcd(36, 63, G).
+%   G = 9
+% Define gcd as an arithmetic function; so you can use it like this:
+%   ?- G is gcd(36,63).
+%   G = 9
+%   note: arithmetic_function(:NameArity) has been deprecated, via SWI Prolog
+%   documentation.
+%:- arithmetic_function(gcd/2).
+gcd(N1, N2, GCD):-
+    euclid(N1, N2, GCD), !.
+
+euclid(GCD, 0, GCD).
+euclid(N1, N2, GCD):-
+    N2 =\= 0,
+    N1 > N2,
+    NewN2 is N1 mod N2,
+    euclid(N2, NewN2, GCD).
+euclid(N1, N2, GCD):-           % Flip if N2 > N1
+    N2 > N1,
+    euclid(N2, N1, GCD).
+
+%========================================================================
+% P2.03 (*) Determine whether two positive integer numbers are coprime.
+% Two numbers are coprime if their greatest common divisor equals 1.
+%   ?- coprime(31,64).
+%   Yes
+coprime(N1, N2):-
+    gcd(N1, N2, 1).
+
+%========================================================================
+% P2.04 (**) Calculate Euler's totient function phi(m).
+% Euler's so-called totient function φ(m) is defined as the number of 
+% positive integers r (1 <= r < m) that are coprime to m.
+% Example: m = 10: r = 1,3,7,9; thus φ(m) = 4.
+%   Note the special case: phi(1) = 1.
+%
+%   ?- Phi is totient_phi(10).
+%   Phi = 4
+%
+% Find out what the value of φ(m) is if m is a prime number. Euler's
+% totient function plays an important role in one of the most widely used
+% public key cryptography methods (RSA). In this exercise you should use
+% the most primitive method to calculate this function (there are smarter
+% ways that we shall discuss later).
+%   φ(prime) ==> prime - 1
+%:- arithmetic_function(totient_phi/1).
+totient_phi(M, Phi):-
+    N is M - 1,
+    totient_phi(N, M, Phi1), !,
+    Phi is Phi1.
+
+totient_phi(1, _, 1).
+totient_phi(N, M, Phi):-
+    N > 1, 
+    coprime(N, M),
+    NewN is N - 1,
+    totient_phi(NewN, M, NewPhi),
+    Phi is NewPhi + 1.
+totient_phi(N, M, Phi):-
+    N > 1, 
+    \+ coprime(N, M),
+    NewN is N - 1,
+    totient_phi(NewN, M, Phi).
+
+%========================================================================
+% P2.05 (**) Determine the prime factors of a given positive integer.
+% Construct a flat list containing the prime factors in ascending order.
+%   ?- prime_factors(315,L).
+%   L = [3,3,5,7]
+prime_factors(N, List):-
+    N > 0,
+    prime_factors(N, List, 2), !.
+
+prime_factors(1, [], _).
+prime_factors(N, [Factor|List], Factor):-   % N multiple of Factor
+    Remainder is N // Factor,
+    N =:= Remainder * Factor,
+    !, prime_factors(Remainder, List, Factor).
+prime_factors(N, List, Factor):-            % N not multiple of Factor
+    next_factor(N, Factor, Next),
+    prime_factors(N, List, Next).
+
+next_factor(_, 2, 3).
+next_factor(N, Factor, Next):-
+    Factor * Factor < N,
+    !, Next is Factor + 2.
+next_factor(N, _, N).               % Factor > sqrt(N)
+
+%========================================================================
+% P2.06 (**) Determine the prime factors of a given integer (2).
+% Construct a list containing the prime factors and their multiplicity.
+%   ?- prime_factors_mult(315,L).
+%   L = [[3,2],[5,1],[7,1]]
+%
+%   Hint: The problem is similar to problem P1.13.
+prime_factors_mult(N, OutList):-
+    prime_factors(N, Factors),
+    encode(Factors, TmpList),
+    flip_primes_multiples(TmpList, OutList).
+
+flip_primes_multiples([],[]).
+flip_primes_multiples([[N, Prime]|Xs], [[Prime, N]|Rest]):-
+    flip_primes_multiples(Xs, Rest).
