@@ -966,3 +966,159 @@ istree(t(_, Left, Right)):-
     istree(Left),
     istree(Right).
 
+%========================================================================
+% P4.02 (**) Construct completely balanced binary trees
+% In a completely balanced binary tree, the following property holds for
+% every node: the number of nodes in its left subtree and the number of nodes
+% in its righ subtree are almost equal, which means their difference is not
+% greater than one.
+%
+% Write a predicate cbal_tree/2 to construct completely balanced binary tree
+% for a given number of nodes. The predicate should generate all solutions via
+% backtracking. Put the letter 'x' as information into all nodes of the tree.
+%
+%   ?- cbal_tree(4,T).
+%   T = t(x, t(x, nil, nil), t(x, nil, t(x, nil, nil))) ;
+%   T = t(x, t(x, nil, nil), t(x, t(x, nil, nil), nil)) ;
+%   etc......No
+   
+cbal_tree(0, nil).
+cbal_tree(N, t(x, Left, Right)):-
+    N > 0,
+    RemainingNodes is N - 1,
+    HalfOfNodes is RemainingNodes // 2,
+    OtherHalfOfNodes is RemainingNodes - HalfOfNodes,
+    distribute_nodes(HalfOfNodes, OtherHalfOfNodes, SubLeft, SubRight),
+    cbal_tree(SubLeft, Left),
+    cbal_tree(SubRight, Right).
+
+distribute_nodes(N, N, N, N):- !.     % Full tree
+distribute_nodes(N, N1, N, N1).     % Alternate left/right nodes
+distribute_nodes(N, N1, N1, N).     % Alternate left/right nodes
+
+%========================================================================
+% P4.03 (**) Symmetric binary trees
+% Let us call a binary tree symmetric if you can draw a vertical line
+% through the root node and then the right subtree is the mirror image of
+% the left subtree. Write a predicate symmetric/1 to check whether a given
+% binary tree is symmetric. Hint: Write a predicate mirror/2 first to check
+% whether one tree is the mirror image of another. We are only interested in
+% the structure, not in the contents of the nodes.
+symmetric(nil).
+symmetric(t(_, Left, Right)):-
+    mirror(Left, Right).
+
+mirror(nil, nil).
+mirror(t(_, Left, Right), t(_, RighttMirrored, LeftMirrored)):-
+    mirror(Left, LeftMirrored),
+    mirror(Right, RighttMirrored).
+
+%========================================================================
+% P4.04 (**) Binary search trees (dictionaries)
+% Use the predicate add/3, developed in chapter 4 of the course, to write
+% a predicate to construct a binary search tree from a list of integer
+% numbers.
+%
+%   ?- construct([3,2,5,7,1],T).
+%   T = t(3, t(2, t(1, nil, nil), nil), t(5, nil, t(7, nil, nil)))
+% 
+% Then use this predicate to test the solution of the problem P4.03.
+%
+%   ?- test_symmetric([5,3,18,1,4,12,21]).
+%   Yes
+%   ?- test_symmetric([3,2,5,7,4]).
+%   No
+construct(List, Tree):-
+    construct(List, nil, Tree), !.
+
+construct([], Tree, Tree).
+construct([X|Xs], IntermediateTree, Tree):-
+    add(X, IntermediateTree, NewTree),
+    construct(Xs, NewTree, Tree).
+
+test_symmetric(List):-
+    construct(List, Tree),
+    symmetric(Tree).
+
+add(X, nil, t(X, nil, nil)).
+add(X, t(Node, Left, Right), t(Node, NewLeft, Right)):-
+    X @< Node,      % X is before Node in the standard order of terms
+    add(X, Left, NewLeft).
+add(X, t(Node, Left, Right), t(Node, Left, NewRight)):-
+   X @> Node,       % X is after Node in the standard order of terms
+   add(X, Right, NewRight).
+
+%========================================================================
+% P4.05 (**) Generate-and-test paradigm
+% Apply the generate-and-test paradigm to construct all symmetric, completely
+% balanced binary trees given number of nodes. Example:
+%
+%   ?- sym_cbal_trees(5,Ts).
+%   Ts = [t(x, t(x, nil, t(x, nil, nil)), t(x, t(x, nil, nil), nil)), t(x, t(x, t(x, nil, nil), nil), t(x, nil, t(x, nil, nil)))]
+%
+% How many such trees are there with 57 nodes? Investigate about how many
+% solutions there are for a given number of nodes? What if the number is even?
+% Write an appropriate predicate.
+sym_cbal_trees(N, Trees):-
+    setof(Tree, sym_cbal_tree(N, Tree), Trees).
+
+sym_cbal_tree(N, Tree):-
+    cbal_tree(N, Tree),
+    symmetric(Tree).
+
+investigate(Start, End) :-
+    between(Start, End, N),                 % Start ≤ N ≤ End
+    number_of_trees_given_nodes(N, Trees),
+    write(N), write(':'), write(Trees), nl,
+    fail.                                   % Force backtrack for rest N
+investigate(_, _).
+
+number_of_trees_given_nodes(N, UniqueTrees):-
+    sym_cbal_trees(N, Trees),
+    length(Trees, UniqueTrees).
+
+%========================================================================
+% P4.06 (**) Construct height-balanced binary trees
+% In a height-balanced binary tree, the following property holds for every
+% node: The height of its leftsubtree and the height of its right subtree
+% are almost equal, which means their difference is not greater than one.
+%
+% Write a predicate hbal_tree/2 to construct height-balanced binary trees
+% for a given height. The predicate should generate all solutions via
+% backtracking. Put the letter 'x' as information into all nodes of the
+% tree.
+%
+%   ?- hbal_tree(3,T).
+%   T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), t(x, nil, nil))) ;
+%   T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), nil)) ;
+%   etc......No
+hbal_tree(0, nil):- !.
+hbal_tree(1, t(x, nil, nil)):- !.
+hbal_tree(Height, t(x, Left, Right)):-
+    Height1 is Height - 1,
+    Height2 is Height - 2,
+    distribute_nodes(Height1, Height2, SubLeft, SubRight),      % Defined P4.02
+    hbal_tree(SubLeft, Left),
+    hbal_tree(SubRight, Right).
+
+%========================================================================
+% P4.07 (**) Construct height-balanced binary trees with a given number of nodes
+% Consider a height-balanced binary tree of height H. What is the maximum
+% number of nodes it can contain?
+%
+% Clearly, MaxN = 2**H - 1. However, what is the minimum number MinN? This
+% question is more difficult. Try to find a recursive statement and turn it
+% into a predicate minNodes/2 defined as follows:
+% minNodes(H,N) :- N is the minimum number of nodes in a height-balanced
+% binary tree of height H.(integer,integer), (+,?)
+%
+% On the other hand, we might ask: what is the maximum height H a height-
+% balanced binary tree with Nnodes can have?
+% maxHeight(N,H) :- H is the maximum height of a height-balanced binary
+% tree with N nodes(integer,integer), (+,?)
+%
+% Now, we can attack the main problem: construct all the height-balanced
+% binary trees with a given number of nodes.
+% hbal_tree_nodes(N,T) :- T is a height-balanced binary tree with N nodes.
+%
+% Find out how many height-balanced trees exist for N = 15.
