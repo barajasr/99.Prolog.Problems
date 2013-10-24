@@ -928,3 +928,41 @@ prepend(X, [Code|Codes], [NewCode|NewCodes]):-
 %
 %   % huffman(Fs,Hs) :- Hs is the Huffman code table for the frequency
 % table Fs
+
+%========================================================================
+%========================================================================
+%% Binary Trees
+%
+% A binary tree is either empty or it is composed of a root element and
+% two successors, which are binarytrees themselves. 
+%
+% In Prolog we represent the empty tree by the atom 'nil' and the
+% non-emptytree by the term t(X,L,R), where X denotes the root node and
+% L and Rdenote the left and right subtree, respectively. The example
+% tree depictedopposite is therefore represented by the following Prolog
+% term:
+%
+% T1 = t(a,t(b,t(d,nil,nil),t(e,nil,nil)),t(c,nil,t(f,t(g,nil,nil),nil)))
+%
+% Other examples are a binary tree that consists of a root node only:
+%
+% T2 = t(a,nil,nil) or an empty binary tree: T3 = nil
+%
+% You can check your predicates using these example trees. They are given
+% as test cases in P54.pl.
+
+
+%========================================================================
+% P4.01 (*) Check whether a given term represents a binary tree
+% Write a predicate istree/1 which succeeds if and only if its argument is
+% a Prolog term representing a binary tree.
+%
+%   ?- istree(t(a,t(b,nil,nil),nil)).
+%   Yes
+%   ?- istree(t(a,t(b,nil,nil))).
+%   No
+istree(nil).
+istree(t(_, Left, Right)):-
+    istree(Left),
+    istree(Right).
+
