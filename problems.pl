@@ -1122,3 +1122,42 @@ hbal_tree(Height, t(x, Left, Right)):-
 % hbal_tree_nodes(N,T) :- T is a height-balanced binary tree with N nodes.
 %
 % Find out how many height-balanced trees exist for N = 15.
+
+%========================================================================
+% P4.08 Count the leaves of a binary tree
+% A leaf is a node with no successors. Write a predicate count_leaves/2
+% to count them.
+%
+%   count_leaves(T, N):- the binary tree T has N leaves
+count_leaves(nil, 0):- !.
+count_leaves(t(_, nil, nil), 1):- !.
+count_leaves(t(_, Left, Right), Leaves):-
+    count_leaves(Left, LeftLeaves),
+    count_leaves(Right, RightLeaves),
+    Leaves is LeftLeaves + RightLeaves.
+
+%========================================================================
+% P4.09 Collect the leaves of a binary tree in a list
+% A leaf is a node with no successors. Write a predicate leaves/2 to collect
+% them in a list.
+%
+%   leaves(T,S):- S is the list of all leaves of the binary tree T
+leaves(nil, []):- !.
+leaves(t(Node, nil, nil), [Node]):- !.
+leaves(t(_, Left, Right), Nodes):-
+    leaves(Left, LeftLeaves),
+    leaves(Right, RightLeaves),
+    append(LeftLeaves, RightLeaves, Nodes).
+
+%========================================================================
+% P4.10 Collect the internal nodes of a binary tree in a list
+% An internal node of binary tree has either one or two non-empty successors.
+% Write a predicate internals/2 to collect them in a list.
+%
+%   internals(T,S):- S is the list of internal nodes of the binary tree T.
+internals(nil, []).
+internals(t(_, nil, nil), []):- !.
+internals(t(Node, Left, Right), Nodes):-
+    internals(Left, LeftNodes),
+    internals(Right, RightNodes),
+    append([Node|LeftNodes], RightNodes, Nodes).
